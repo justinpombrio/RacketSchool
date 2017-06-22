@@ -8,11 +8,8 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; syntax
 
-(define-language basic-syntax
-  (p ::=
-     (prog f ... e))
-  (f ::=
-     (defun (x x) e))
+(define-language arith-lang
+  (p ::= e)
   (e ::=
      ;; booleans
      b
@@ -24,25 +21,12 @@
      ;; strings
      s
      (empty? e)
-     (e ++ e)
-     ;; standard material 
-     x
-     (e e)
-     (let ((x e)) e))
+     (e ++ e))
   (b ::= true false)
   (n ::= number)
   (s ::= string)
   (x ::= variable-not-otherwise-mentioned)
-  #:binding-forms
-  (prog (defun (x_fun x_arg) e_body #:refers-to x_arg x_fun) ... e #:refers-to (shadow x_fun ...))
-  (let ((x e)) e #:refers-to x))
-
-;; ---------------------------------------------------------------------------------------------------
-;; evaluation
-
-(define-extended-language basic-lang basic-syntax
-  (P ::=
-     (prog f ... E))
+  (P ::= E)
   (E ::=
      hole
      ;; booleans
@@ -54,22 +38,38 @@
      ;; strings
      (empty? E)
      (E ++ e)
-     (v ++ E)
-     ;; standard
-     (E e)
-     (v E)
-     (let ((x E)) e))
+     (v ++ E))
   (v ::=
      b
      n
-     s
-     x)) ; TODO: fix
+     s))
+ 
 
-(define basic->
+(define-extended-language basic-lang arith-lang
+  (p ::= (prog f ... e))
+  (f ::= (defun (x x) e))
+  (e ::= ....
+     (function x)
+     (e e)
+     x
+     (let ((x e)) e))
+  (P ::= (prog f ... E))
+  (E ::= ....
+     (E e)
+     (v E)
+     (let ((x E)) e))
+  (v ::= ....
+     (function x))
+  #:binding-forms
+  (let ((x e_1)) e_2 #:refers-to x))
+
+  
+
+;; ---------------------------------------------------------------------------------------------------
+;; evaluation
+
+(define arith->
   (reduction-relation basic-lang
-   ;; termination
-   (--> (prog f ... v)
-        v)
    ;; booleans
    (--> (in-hole P (if true e_then e_else))
         (in-hole P e_then))
@@ -91,13 +91,26 @@
         (side-condition (not (equal? (term s) ""))))
    (--> (in-hole P (s_1 ++ s_2))
         (in-hole P ,(string-append (term s_1) (term s_2))))
-   ;; standard
+   ;; let
    (--> (in-hole P (let ((x v)) e))
-        (in-hole P (substitute e x v)))
+        (in-hole P (substitute e x v)))))
+
+(define basic->
+  (extend-reduction-relation arith-> basic-lang
+   ;; termination
+   (--> (prog f ... v)
+        v)
+   ;; id
    (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E (x_fun v_arg)))
+              (in-hole E x_fun))
+        (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
+              (in-hole E (function x_fun))))
+   ;; call
+   (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
+              (in-hole E ((function x_fun) v_arg)))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E (substitute e_body x_param v_arg))))))
+   
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests
@@ -168,11 +181,32 @@
         (1 + (f 1)))
   3)
 
+(define-test ex-defun-5
+  (prog (defun (tri n) (if (zero? n) 0 (n + (tri (n + -1))))) (tri 5))
+  15)
+
+(define-test ex-defun-6
+  (prog (defun (twice f) (f (f 1)))
+        (defun (inc x) (x + 1))
+        (twice inc))
+  3)
+
+(define-test ex-let-1
+  (prog (let ((x 3)) x)) 3)
+
+(define-test ex-let-2
+  (prog (let ((x 1)) (let ((x (x + 1))) (x + 1))))
+  3)
+
+(define-test ex-let-3
+  (prog (1 + (let ((x 1)) (x + 1))))
+  3)
+
 (define-syntax-rule (run-bool-tests lang) (run-tests lang ex-bool-1 ex-bool-2))
 (define-syntax-rule (run-str-tests lang)  (run-tests lang ex-str-1 ex-str-2 ex-str-3))
 (define-syntax-rule (run-num-tests lang)  (run-tests lang ex-num-1 ex-num-2 ex-num-3))
-(define-syntax-rule (run-func-tests lang) (run-tests lang ex-defun-1 ex-defun-2 ex-defun-3 ex-defun-4))
-(define-syntax-rule (run-let-tests lang)  (run-tests lang ));ex-let-1 ex-let-2 ex-let-3))
+(define-syntax-rule (run-func-tests lang) (run-tests lang ex-defun-1 ex-defun-2 ex-defun-3 ex-defun-4 ex-defun-5 ex-defun-6))
+(define-syntax-rule (run-let-tests lang)  (run-tests lang ex-let-1 ex-let-2 ex-let-3))
 
 (define-syntax-rule
   (run-standard-tests lang)

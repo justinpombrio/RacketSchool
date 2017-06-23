@@ -4,6 +4,8 @@
 (require "base.rkt")
 (require "testing.rkt")
 
+(provide record->1 record->2 record->3)
+
 ;; ---------------------------------------------------------------------------------------------------
 ;; syntax
 
@@ -15,7 +17,6 @@
      {(s v) ... (s E) (s e) ...})
   (v ::= ....
      {(s v) ...}))
-
 
 (define-extended-language record-lang-1 record-base-lang
   (E ::= ....

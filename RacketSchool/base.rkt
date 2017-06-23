@@ -90,10 +90,12 @@
         (in-hole P false)
         (side-condition (not (equal? (term s) ""))))
    (--> (in-hole P (s_1 ++ s_2))
-        (in-hole P ,(string-append (term s_1) (term s_2))))
-   ;; let
-   (--> (in-hole P (let ((x v)) e))
-        (in-hole P (substitute e x v)))))
+        (in-hole P ,(string-append (term s_1) (term s_2))))))
+
+(define-metafunction basic-lang
+  lookup-fun : x (f ...) -> (defun (x x) e)
+  [(lookup-fun x_fun (f_1 ... (defun (x_fun x_param) e_body) f_2 ...))
+   (defun (x_fun x_param) e_body)])
 
 (define basic->
   (extend-reduction-relation arith-> basic-lang
@@ -105,12 +107,20 @@
               (in-hole E x_fun))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E (function x_fun))))
+   #;(--> (prog f ... (in-hole E x_fun))
+        (prog f ... (in-hole E (function x_fun)))
+        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))
+   ;; let
+   (--> (in-hole P (let ((x v)) e))
+        (in-hole P (substitute e x v)))
    ;; call
    (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E ((function x_fun) v_arg)))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E (substitute e_body x_param v_arg))))))
-   
+              (in-hole E (substitute e_body x_param v_arg))))
+   #;(--> (prog f ... (in-hole E ((function x_fun) v_arg)))
+        (prog f ... (in-hole E (substitute e_body x_param v_arg)))
+        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))))   
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests

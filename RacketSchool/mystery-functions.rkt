@@ -4,9 +4,13 @@
 (require "base.rkt")
 (require "testing.rkt")
 
+(provide func->1 func->2 func->3)
+
 ;; Language 1: standard
 ;; Language 2: COBOL
 ;; Language 3: goto
+
+
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; syntax
@@ -21,13 +25,13 @@
      x
      (function x)
      (e e)
-     (return x e)
+     (cobol-return x e)
      (let ((x e)) e))
   (P ::= (prog cf ... E))
   (E ::= ....
      (E e)
      (v E)
-     (return x E)
+     (cobol-return x E)
      (let ((x E)) e))
   (v ::= ....
      (function x))
@@ -61,10 +65,10 @@
    (--> (prog cf_1 ... (defun e_1 (x_fun x_param) e_body) cf_2 ...
               (in-hole E ((function x_fun) v_arg)))
         (prog cf_1 ... (defun (in-hole E continue) (x_fun x_param) e_body) cf_2 ...
-              (return x_fun (substitute e_body x_param v_arg))))
+              (cobol-return x_fun (substitute e_body x_param v_arg))))
    ;; return (NEW)
    (--> (prog cf_1 ... (defun e_cont (x_fun x_param) e_body) cf_2 ...
-              (in-hole E (return x_fun v)))
+              (in-hole E (cobol-return x_fun v)))
         (prog cf_1 ... (defun e_cont (x_fun x_param) e_body) cf_2 ...
               (in-hole E (substitute e_cont continue v))))))
 
@@ -74,18 +78,16 @@
    (--> (prog f ... v)
         v)
    ;; id
-   (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E x_fun))
-        (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E (function x_fun))))
+   (--> (prog f ... (in-hole E x_fun))
+        (prog f ... (in-hole E (function x_fun)))
+        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))
    ;; let
    (--> (in-hole P (let ((x v)) e))
         (in-hole P (substitute e x v)))
    ;; call (NEW)
-   (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E ((function x_fun) v_arg)))
-        (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (substitute e_body x_param v_arg)))))
+   (--> (prog f ... (in-hole E ((function x_fun) v_arg)))
+        (prog f ... (substitute e_body x_param v_arg))
+        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))))
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests

@@ -32,6 +32,7 @@
      (E @ e)
      (v @ E)))
 
+
 ;; ---------------------------------------------------------------------------------------------------
 ;; evaluation
 
@@ -39,25 +40,44 @@
   (extend-reduction-relation basic-> record-lang-1
    ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
-        (in-hole P v))))
+        (in-hole P v)
+        (side-condition (not (member (term s) (term (s_1 ...))))))))
 
 (define record->2
   (extend-reduction-relation basic-> record-lang-2
    ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
-        (in-hole P v))))
+        (in-hole P v)
+        (side-condition (not (member (term s) (term (s_1 ...))))))))
+
 
 (define record->3
   (extend-reduction-relation basic-> record-lang-3
    ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
-        (in-hole P v))
+        (in-hole P v)
+        (side-condition (not (member (term s) (term (s_1 ...))))))
    (--> (in-hole P (v @ true))
         (in-hole P (v @ "true")))
    (--> (in-hole P (v @ false))
         (in-hole P (v @ "false")))
    (--> (in-hole P (v @ n))
         (in-hole P (v @ ,(number->string (term n)))))))
+
+(define record->4
+  (extend-reduction-relation basic-> record-lang-1
+   ;; records
+   (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
+        (in-hole P v)
+        (side-condition (not (member (term s) (term (s_2 ...))))))))
+
+(define record->5
+  (extend-reduction-relation basic-> record-lang-1
+   ;; records
+   (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
+        (in-hole P v)
+        (side-condition (not (member (term s) (append (term (s_1 ...)) (term (s_2 ...)))))))))
+
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests
@@ -121,6 +141,9 @@
   (prog (let ((r {("7" 1) ("8" 2)})) ((r @ 7) + (r @ 8))))
   3)
 
+(define ex-mult-fields
+  (term (prog ({("a" "first") ("b" "middle") ("a" "last")} @ "a"))))
+
 
 (module+ test
   (run-standard-tests record->1)
@@ -128,7 +151,8 @@
   (run-test record->1 ex-dyn-no)
   (run-test record->1 ex-coerc-1-no)
   (run-test record->1 ex-coerc-2-no)
-  (run-test record->1 ex-coerc-3-no))
+  (run-test record->1 ex-coerc-3-no)
+  (test-->> record->1 ex-mult-fields "first"))
 
 (module+ test
   (run-standard-tests record->2)
@@ -136,7 +160,8 @@
   (run-test record->2 ex-dyn-yes)
   (run-test record->2 ex-coerc-1-kinda)
   (run-test record->2 ex-coerc-2-kinda)
-  (run-test record->2 ex-coerc-3-no))
+  (run-test record->2 ex-coerc-3-no)
+  (test-->> record->2 ex-mult-fields "first"))
 
 (module+ test
   (run-standard-tests record->3)
@@ -144,4 +169,24 @@
   (run-test record->3 ex-dyn-yes)
   (run-test record->3 ex-coerc-1-yes)
   (run-test record->3 ex-coerc-2-yes)
-  (run-test record->3 ex-coerc-3-yes))
+  (run-test record->3 ex-coerc-3-yes)
+  (test-->> record->3 ex-mult-fields "first"))
+
+(module+ test
+  (run-standard-tests record->4)
+  (run-tests record->4 ex-record-1 ex-record-2 ex-record-3 ex-record-4)
+  (run-test record->4 ex-dyn-no)
+  (run-test record->4 ex-coerc-1-no)
+  (run-test record->4 ex-coerc-2-no)
+  (run-test record->4 ex-coerc-3-no)
+  (test-->> record->4 ex-mult-fields "last"))
+
+(module+ test
+  (run-standard-tests record->5)
+  (run-tests record->5 ex-record-1 ex-record-2 ex-record-3 ex-record-4)
+  (run-test record->5 ex-dyn-no)
+  (run-test record->5 ex-coerc-1-no)
+  (run-test record->5 ex-coerc-2-no)
+  (run-test record->5 ex-coerc-3-no)
+  (test-->> record->5 ex-mult-fields
+            (term (prog ({("a" "first") ("b" "middle") ("a" "last")} @ "a")))))

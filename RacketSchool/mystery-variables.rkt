@@ -47,7 +47,8 @@
    (--> (prog f_1 ... (defvar x v) f_2 ...
               (in-hole E (set! x v_2)))
         (prog f_1 ... (defvar x v_2) f_2 ...
-              (in-hole E v_2)))
+              (in-hole E v_2))
+        e-set!)
    ;; let
    (--> (prog f ...
               (in-hole E (let ((x v)) e)))
@@ -65,6 +66,15 @@
         (prog f ... (defvar x_fresh v) (in-hole E (substitute e_body x_param x_fresh)))
         (where (defun (x_fun x_param) e_body) (lookup x_fun (f ...)))
         (fresh x_fresh))))
+
+(define var->4
+  (extend-reduction-relation var->1 var-lang
+   ;; set!
+   (--> (prog f_1 ... (defvar x v) f_2 ...
+              (in-hole E (set! x v_2)))
+        (prog f_1 ... (defvar x v_2) f_2 ...
+              (in-hole E v))
+        e-set!)))
 
 (define var->2
   (extend-reduction-relation var-> var-lang
@@ -136,26 +146,36 @@
   (term (prog (defun (inc y) (set! y (y + 1)))
               (let ((x 1)) (begin (inc x) x)))))
 
+(define ex-4
+  (term (prog (defvar x 1) (set! x 2))))
+
 
 (module+ test
   (run-standard-tests var->1)
   (test-->> var->1 ex-0 3)
   (test-->> var->1 ex-1 1)
   (test-->> var->1 ex-2 1)
-  (test-->> var->1 ex-3 1))
+  (test-->> var->1 ex-3 1)
+  (test-->> var->1 ex-4 2))
 
 (module+ test
   (run-standard-tests var->2)
   (test-->> var->2 ex-0 3)
   (test-->> var->2 ex-1 2)
   (test-->> var->2 ex-2 3)
-  (test-->> var->2 ex-3 2))
+  (test-->> var->2 ex-3 2)
+  (test-->> var->2 ex-4 2))
 
 (module+ test
   (run-standard-tests var->3)
   (test-->> var->3 ex-0 2)
   (test-->> var->3 ex-1 2)
   (test-->> var->3 ex-2 2)
-  (test-->> var->2 ex-3 2))
+  (test-->> var->3 ex-3 2)
+  (test-->> var->3 ex-4 2))
+
+(module+ test
+  (run-standard-tests var->4)
+  (test-->> var->4 ex-4 1))
 
 

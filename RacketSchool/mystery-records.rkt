@@ -1,88 +1,104 @@
 #lang racket
 
 (require redex)
-(require "base.rkt")
+(require "basic.rkt")
 (require "testing.rkt")
 
 (provide record->1 record->2 record->3)
 
-;; ---------------------------------------------------------------------------------------------------
-;; syntax
 
-(define-extended-language record-base-lang basic-lang
-  (e :: ....
+;; ---------------------------------------------------------------------------------------------------
+;; syntax: shared
+
+(define-extended-language record-syntax basic-lang
+  (e ::= ....
      {(s e) ...}
      (e @ e))
-  (E ::= ....
-     {(s v) ... (s E) (s e) ...})
   (v ::= ....
      {(s v) ...}))
 
-(define-extended-language record-lang-1 record-base-lang
-  (E ::= ....
-     (E @ e)))
-
-(define-extended-language record-lang-2 record-base-lang
-  (E ::= ....
-     (E @ e)
-     (v @ E)))
-
-(define-extended-language record-lang-3 record-base-lang
-  (E ::= ....
-     (E @ e)
-     (v @ E)))
-
 
 ;; ---------------------------------------------------------------------------------------------------
-;; evaluation
+;; lanuage 1: Field lookup must be on string literals
+
+(define-extended-language record-lang-1 record-syntax
+  (E ::= ....
+     {(s v) ... (s E) (s e) ...}
+     (E @ e)))
 
 (define record->1
   (extend-reduction-relation basic-> record-lang-1
-   ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
         (in-hole P v)
-        (side-condition (not (member (term s) (term (s_1 ...))))))))
+        (side-condition (not (member (term s) (term (s_1 ...)))))
+        e-at)))
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; lanuage 2: Field lookup can be on any expression that evaluates to a string
+
+(define-extended-language record-lang-2 record-syntax
+  (E ::= ....
+     {(s v) ... (s E) (s e) ...}
+     (E @ e)
+     (v @ E)))
 
 (define record->2
   (extend-reduction-relation basic-> record-lang-2
-   ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
         (in-hole P v)
-        (side-condition (not (member (term s) (term (s_1 ...))))))))
+        (side-condition (not (member (term s) (term (s_1 ...)))))
+        e-at)))
 
+
+;; ---------------------------------------------------------------------------------------------------
+;; lanuage 3: Field lookup can be on any expression; it will be coerced to a string
+
+(define-extended-language record-lang-3 record-syntax
+  (E ::= ....
+     {(s v) ... (s E) (s e) ...}
+     (E @ e)
+     (v @ E)))
 
 (define record->3
   (extend-reduction-relation basic-> record-lang-3
-   ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
         (in-hole P v)
-        (side-condition (not (member (term s) (term (s_1 ...))))))
+        (side-condition (not (member (term s) (term (s_1 ...)))))
+        e-at)
    (--> (in-hole P (v @ true))
-        (in-hole P (v @ "true")))
+        (in-hole P (v @ "true"))
+        e-coerce-true)
    (--> (in-hole P (v @ false))
-        (in-hole P (v @ "false")))
+        (in-hole P (v @ "false"))
+        e-coerce-false)
    (--> (in-hole P (v @ n))
-        (in-hole P (v @ ,(number->string (term n)))))))
+        (in-hole P (v @ ,(number->string (term n))))
+        e-coerce-number)))
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; language 4: Mystery semantics!
+;;             How do these languages differ from language 1?
+;;             Find programs that will demonstrate the difference.
 
 (define record->4
   (extend-reduction-relation basic-> record-lang-1
-   ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
         (in-hole P v)
-        (side-condition (not (member (term s) (term (s_2 ...))))))))
+        (side-condition (not (member (term s) (term (s_2 ...)))))
+        e-at)))
 
 (define record->5
   (extend-reduction-relation basic-> record-lang-1
-   ;; records
    (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
         (in-hole P v)
-        (side-condition (not (member (term s) (append (term (s_1 ...)) (term (s_2 ...)))))))))
+        (side-condition (not (member (term s) (append (term (s_1 ...)) (term (s_2 ...))))))
+        e-at)))
 
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests
-
-;; common tests
 
 (define-test ex-record-1
   (prog {("x" ("a" ++ "b")) ("y" (empty? ""))})
@@ -171,6 +187,10 @@
   (run-test record->3 ex-coerc-2-yes)
   (run-test record->3 ex-coerc-3-yes)
   (test-->> record->3 ex-mult-fields "first"))
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; tests (SPOILERS!)
 
 (module+ test
   (run-standard-tests record->4)

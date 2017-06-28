@@ -5,11 +5,14 @@
 
 (provide (all-defined-out))
 
+;; A basic language that all of the mystery languages will build upon.
+
 ;; ---------------------------------------------------------------------------------------------------
 ;; syntax
 
-(define-language arith-lang
-  (p ::= e)
+(define-language basic-syntax
+  (p ::= (prog f ... e))
+  (f ::= (defun (x x) e))
   (e ::=
      ;; booleans
      b
@@ -21,12 +24,30 @@
      ;; strings
      s
      (empty? e)
-     (e ++ e))
+     (e ++ e)
+     ;; functions & let
+     (function x)
+     (e e)
+     x
+     (let ((x e)) e))
+  (x ::= variable-not-otherwise-mentioned)
   (b ::= true false)
   (n ::= number)
   (s ::= string)
-  (x ::= variable-not-otherwise-mentioned)
-  (P ::= E)
+  (v ::=
+     b
+     n
+     s
+     (function x))
+  #:binding-forms
+  (let ((x e_1)) e_2 #:refers-to x))
+  
+
+;; ---------------------------------------------------------------------------------------------------
+;; evaluation
+
+(define-extended-language basic-lang basic-syntax
+  (P ::= (prog f ... E))
   (E ::=
      hole
      ;; booleans
@@ -38,90 +59,64 @@
      ;; strings
      (empty? E)
      (E ++ e)
-     (v ++ E))
-  (v ::=
-     b
-     n
-     s))
- 
-
-(define-extended-language basic-lang arith-lang
-  (p ::= (prog f ... e))
-  (f ::= (defun (x x) e))
-  (e ::= ....
-     (function x)
-     (e e)
-     x
-     (let ((x e)) e))
-  (P ::= (prog f ... E))
-  (E ::= ....
+     (v ++ E)
+     ;; functions & let
      (E e)
      (v E)
-     (let ((x E)) e))
-  (v ::= ....
-     (function x))
-  #:binding-forms
-  (let ((x e_1)) e_2 #:refers-to x))
+     (let ((x E)) e)))
 
-  
-
-;; ---------------------------------------------------------------------------------------------------
-;; evaluation
-
-(define arith->
+(define basic->
   (reduction-relation basic-lang
    ;; booleans
    (--> (in-hole P (if true e_then e_else))
-        (in-hole P e_then))
+        (in-hole P e_then)
+        e-if-true)
    (--> (in-hole P (if false e_then e_else))
-        (in-hole P e_else))
+        (in-hole P e_else)
+        e-if-false)
    ;; numbers
    (--> (in-hole P (zero? 0))
-        (in-hole P true))
+        (in-hole P true)
+        e-zero-yes)
    (--> (in-hole P (zero? n))
         (in-hole P false)
-        (side-condition (not (equal? (term n) 0))))
+        (side-condition (not (equal? (term n) 0)))
+        e-zero-no)
    (--> (in-hole P (n_1 + n_2))
-        (in-hole P ,(+ (term n_1) (term n_2))))
+        (in-hole P ,(+ (term n_1) (term n_2)))
+        e-plus)
    ;; strings
    (--> (in-hole P (empty? ""))
-        (in-hole P true))
+        (in-hole P true)
+        e-empty-yes)
    (--> (in-hole P (empty? s))
         (in-hole P false)
-        (side-condition (not (equal? (term s) ""))))
+        (side-condition (not (equal? (term s) "")))
+        e-empty-no)
    (--> (in-hole P (s_1 ++ s_2))
-        (in-hole P ,(string-append (term s_1) (term s_2))))))
-
-(define-metafunction basic-lang
-  lookup-fun : x (f ...) -> (defun (x x) e)
-  [(lookup-fun x_fun (f_1 ... (defun (x_fun x_param) e_body) f_2 ...))
-   (defun (x_fun x_param) e_body)])
-
-(define basic->
-  (extend-reduction-relation arith-> basic-lang
+        (in-hole P ,(string-append (term s_1) (term s_2)))
+        e-append)
    ;; termination
    (--> (prog f ... v)
-        v)
+        v
+        e-halt)
    ;; id
    (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E x_fun))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E (function x_fun)))
         e-id)
-   #;(--> (prog f ... (in-hole E x_fun))
-        (prog f ... (in-hole E (function x_fun)))
-        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))
    ;; let
    (--> (in-hole P (let ((x v)) e))
-        (in-hole P (substitute e x v)))
-   ;; call
+        (in-hole P (substitute e x v))
+        e-let)
+   ;; apply
    (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E ((function x_fun) v_arg)))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E (substitute e_body x_param v_arg))))
-   #;(--> (prog f ... (in-hole E ((function x_fun) v_arg)))
-        (prog f ... (in-hole E (substitute e_body x_param v_arg)))
-        (where (defun (x_fun x_param) e_body) (lookup-fun x_fun (f ...))))))   
+              (in-hole E (substitute e_body x_param v_arg)))
+        e-apply)))
+
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; tests
@@ -228,5 +223,3 @@
          (run-let-tests lang)))
 
 (module+ test (run-standard-tests basic->))
-
-

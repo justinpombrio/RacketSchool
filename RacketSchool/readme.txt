@@ -2,7 +2,8 @@ To run the mystery languages, use
 
     (require "mystery.rkt")
 
-This provides the nine languages:
+This provides nine languages:
+
     records1
     records2
     records3
@@ -13,12 +14,12 @@ This provides the nine languages:
     variables2
     variables3
 
-You can then run them with:
+You can run them with:
     (run <language> <program>)
 
 After a language has been run,
     (stuck? <answer>)
-will return a boolean saying weather the rusult of running that
+will return a boolean saying whether the result of running that
 program was a stuck state.
 
 Programs in the languages have the following grammar:

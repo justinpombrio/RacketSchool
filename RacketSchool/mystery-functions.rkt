@@ -100,24 +100,18 @@
               (in-hole E (function x_fun)))
         e-id)
    ;; init
-   ; [TODO] replace 0 with something more sensible, and eliminate one of the 'apply' rules?
    (--> (prog (defun (x_f1 x_p1) e_1)
               (defun (x_f2 x_p2) e_2) ... e_main)
-        (prog (%defun 0 (x_f1 x_p1) e_1)
-              (%defun 0 (x_f2 x_p2) e_2) ... e_main)
+        (prog (%defun (substitute e_1 x_p1 continue) (x_f1 x_p1) e_1)
+              (%defun (substitute e_2 x_p2 continue) (x_f2 x_p2) e_2) ... e_main)
         e-init)
    ;; apply
-   (--> (prog f_1 ... (%defun 0 (x_fun x_param) e_body) f_2 ...
-              (in-hole E ((function x_fun) v_arg)))
-        (prog f_1 ... (%defun 0 (x_fun x_param) e_body) f_2 ...
-              (in-hole E (%call x_fun (substitute e_body x_param v_arg))))
-        e-apply)
    (--> (prog f_1 ... (%defun e_cont (x_fun x_param) e_body) f_2 ...
               (in-hole E ((function x_fun) v_arg)))
         (prog f_1 ... (%defun e_cont (x_fun x_param) e_body) f_2 ...
               (in-hole E (%call x_fun (substitute e_cont continue v_arg))))
         (side-condition (not (equal? (term e_cont) 0)))
-        e-apply-2)
+        e-apply)
    ;; return
    (--> (prog f ... (in-hole E (%call x_fun v)))
         (prog f ... (in-hole E v))

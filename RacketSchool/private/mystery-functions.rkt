@@ -1,11 +1,12 @@
 #lang racket
 
+(provide func->1 func->2 func->3)
+(provide func-lang-1 func-lang-2 func-lang-3)
+
+;; ---------------------------------------------------------------------------------------------------
 (require redex)
 (require "basic.rkt")
 (require "testing.rkt")
-
-(provide func->1 func->2 func->3)
-
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; language 1: Regular function calls

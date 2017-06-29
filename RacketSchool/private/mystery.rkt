@@ -21,7 +21,17 @@
   [var->3 variables3]))
 
 (define-syntax-rule (run lang e)
-  (car (apply-reduction-relation* lang (term e))))
+  (begin
+    (define x (apply-reduction-relation* lang (term e)))
+    (cond
+      [(empty? x) (error 'run "can't happen: ~e produced '()" (term e))]
+      [(empty? (rest x)) (set! x (car x))]
+      [else (displayln `(warning: ambiguous outcome))
+            (for ([i x]) (displayln `(--> ,i)))
+            (set! x (car x))])
+    (if (stuck? x)
+        'stuck
+        x)))
 
 (define (stuck? e)
   (and (pair? e) (eq? (car e) 'prog)))

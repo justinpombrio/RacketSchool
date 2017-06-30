@@ -18,7 +18,10 @@
   [func->3 functions3]
   [var->1 variables1]
   [var->2 variables2]
-  [var->3 variables3]))
+  [var->3 variables3])
+ func-lang-1 func-lang-2 func-lang-3
+ record-lang-1 record-lang-2 record-lang-3
+ var-lang)
 
 (define-syntax-rule (run lang e)
   (begin

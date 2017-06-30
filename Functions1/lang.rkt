@@ -9,7 +9,6 @@
 ;; dependencies
 
 (require "../private/mystery.rkt"
-         "../private/mystery-functions.rkt"
          (for-syntax "lang/reader.rkt")
          (for-syntax syntax/parse)
          redex/reduction-semantics)

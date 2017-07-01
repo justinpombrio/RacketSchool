@@ -18,7 +18,7 @@ You can then run them with:
 
 After a language has been run,
     (stuck? <answer>)
-will return a boolean saying weather the rusult of running that
+will return a boolean saying whether the rusult of running that
 program was a stuck state.
 
 Programs in the languages have the following grammar:

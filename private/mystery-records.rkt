@@ -1,11 +1,12 @@
 #lang racket
 
+(provide record->1 record->2 record->3)
+(provide record-lang-1 record-lang-2 record-lang-3)
+
+;; ---------------------------------------------------------------------------------------------------
 (require redex)
 (require "basic.rkt")
 (require "testing.rkt")
-
-(provide record->1 record->2 record->3)
-(provide record-lang-1 record-lang-2 record-lang-3)
 
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -78,24 +79,6 @@
         e-coerce-number)))
 
 
-;; ---------------------------------------------------------------------------------------------------
-;; language 4: Mystery semantics!
-;;             How do these languages differ from language 1?
-;;             Find programs that will demonstrate the difference.
-
-(define record->4
-  (extend-reduction-relation basic-> record-lang-1
-   (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
-        (in-hole P v)
-        (side-condition (not (member (term s) (term (s_2 ...)))))
-        e-at)))
-
-(define record->5
-  (extend-reduction-relation basic-> record-lang-1
-   (--> (in-hole P ({(s_1 v_1) ... (s v) (s_2 v_2) ...} @ s))
-        (in-hole P v)
-        (side-condition (not (member (term s) (append (term (s_1 ...)) (term (s_2 ...))))))
-        e-at)))
 
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -188,26 +171,3 @@
   (run-test record->3 ex-coerc-2-yes)
   (run-test record->3 ex-coerc-3-yes)
   (test-->> record->3 ex-mult-fields "first"))
-
-
-;; ---------------------------------------------------------------------------------------------------
-;; tests (SPOILERS!)
-
-(module+ test
-  (run-standard-tests record->4)
-  (run-tests record->4 ex-record-1 ex-record-2 ex-record-3 ex-record-4)
-  (run-test record->4 ex-dyn-no)
-  (run-test record->4 ex-coerc-1-no)
-  (run-test record->4 ex-coerc-2-no)
-  (run-test record->4 ex-coerc-3-no)
-  (test-->> record->4 ex-mult-fields "last"))
-
-(module+ test
-  (run-standard-tests record->5)
-  (run-tests record->5 ex-record-1 ex-record-2 ex-record-3 ex-record-4)
-  (run-test record->5 ex-dyn-no)
-  (run-test record->5 ex-coerc-1-no)
-  (run-test record->5 ex-coerc-2-no)
-  (run-test record->5 ex-coerc-3-no)
-  (test-->> record->5 ex-mult-fields
-            (term (prog ({("a" "first") ("b" "middle") ("a" "last")} @ "a")))))

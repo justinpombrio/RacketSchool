@@ -32,9 +32,9 @@
       [else (displayln `(warning: ambiguous outcome))
             (for ([i x]) (displayln `(--> ,i)))
             (set! x (car x))])
-    (if (stuck? x)
+    (if (and (pair? x) (eq? (car x) 'prog))
         'stuck
         x)))
 
 (define (stuck? e)
-  (and (pair? e) (eq? (car e) 'prog)))
+  (eq? e 'stuck))

@@ -17,23 +17,39 @@
 
 
 ;; ---------------------------------------------------------------------------------------------------
-;; language 2: COBOL-style "recursion": each function has a single statically-allocated return address
+;; language 2: Function calls are gotos!
+
+(define-extended-language func-lang-2 basic-lang)
+
+(define func->2
+  (extend-reduction-relation basic-> func-lang-2
+   ;; apply
+   (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
+              (in-hole E ((function x_fun) v_arg)))
+        (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
+              (substitute e_body x_param v_arg))
+        e-apply)))
+
+
+
+;; ---------------------------------------------------------------------------------------------------
+;; language 3: COBOL-style "recursion": each function has a single statically-allocated return address
 
 ; These syntax extensions are meant to be internal, and thus start with '%'.
-(define-extended-language func-syntax-2 basic-lang
+(define-extended-language func-syntax-3 basic-lang
   (p ::= (prog f ... uf ... e))
   (uf ::= (defun (x x) e)) ; uninitialized functions
   (f ::= (%defun e (x x) e)) ; initialized functions
   (e ::= ....
      (%return x e)))
 
-(define-extended-language func-lang-2 func-syntax-2
+(define-extended-language func-lang-3 func-syntax-3
   (P ::= (prog f ... E))
   (E ::= ....
      (%return x E)))
 
-(define func->2
-  (extend-reduction-relation basic-> func-lang-2
+(define func->3
+  (extend-reduction-relation basic-> func-lang-3
    ;; id (standard)
    (--> (prog f_1 ... (%defun e_cont (x_fun x_param) e_body) f_2 ...
               (in-hole E x_fun))
@@ -59,21 +75,6 @@
 
 
 ;; ---------------------------------------------------------------------------------------------------
-;; language 3: Function calls are gotos!
-
-(define-extended-language func-lang-3 basic-lang)
-
-(define func->3
-  (extend-reduction-relation basic-> func-lang-3
-   ;; apply
-   (--> (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (in-hole E ((function x_fun) v_arg)))
-        (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
-              (substitute e_body x_param v_arg))
-        e-apply)))
-
-
-;; ---------------------------------------------------------------------------------------------------
 ;; tests
 
 ;; triangular numbers
@@ -95,12 +96,12 @@
   (run-str-tests func->2)
   (run-num-tests func->2)
   (run-let-tests func->2)
-  (test-->> func->2 ex-twice 3))
+  (test-->> func->2 ex-tri 0)
+  (test-->> func->2 ex-twice 2))
 
 (module+ test
   (run-bool-tests func->3)
   (run-str-tests func->3)
   (run-num-tests func->3)
   (run-let-tests func->3)
-  (test-->> func->3 ex-tri 0)
-  (test-->> func->3 ex-twice 2))
+  (test-->> func->3 ex-twice 3))

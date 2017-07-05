@@ -17,14 +17,14 @@
       (prog (defun (twice f) (f (f 1)))
             (defun (inc x) (x + 1))
             (twice inc)))
- 3)
+ 2)
 
 (check-expect
  (run functions3
       (prog (defun (twice f) (f (f 1)))
             (defun (inc x) (x + 1))
             (twice inc)))
- 2)
+ 3)
 
 (check-satisfied
   (run records1

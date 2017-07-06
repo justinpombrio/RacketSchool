@@ -78,12 +78,12 @@
 ;; tests
 
 ;; triangular numbers
-(define ex-tri (term (prog (defun (tri n) (if (zero? n) 0 (n + (tri (n + -1))))) (tri 5))))
+(define ex-tri (term (prog (defun (tri n) (if (zero? n) 0 (+ n (tri (+ n -1))))) (tri 5))))
 
 ;; passing functions
 (define ex-twice
   (term (prog (defun (twice f) (f (f 1)))
-              (defun (inc x) (x + 1))
+              (defun (inc x) (+ x 1))
               (twice inc))))
 
 (module+ test

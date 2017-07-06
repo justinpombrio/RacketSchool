@@ -138,26 +138,26 @@
 
 (define ex-0
   (term (prog (defvar x 1)
-              (defun (f y) (set! x (x + y)))
+              (defun (f y) (set! x (+ x y)))
               (begin (f x)
                      (f 1)
                      x))))
 
 (define ex-1
   (term (prog (defvar x 1)
-              (defun (f y) (set! y (y + 1)))
+              (defun (f y) (set! y (+ y 1)))
               (begin (f x)
                      x))))
 
 (define ex-2
   (term (prog (defvar x 1)
-              (defun (f y) (begin (set! y (x + 1))
-                                  (set! y (x + 1))))
+              (defun (f y) (begin (set! y (+ x 1))
+                                  (set! y (+ x 1))))
               (begin (f x)
                      x))))
 
 (define ex-3
-  (term (prog (defun (inc y) (set! y (y + 1)))
+  (term (prog (defun (inc y) (set! y (+ y 1)))
               (let ((x 1)) (begin (inc x) x)))))
 
 (module+ test

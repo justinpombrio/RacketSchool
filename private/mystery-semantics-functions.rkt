@@ -60,11 +60,11 @@
 ;; tests (SPOILERS!)
 
 (define-test ex-gen-1
-  (prog (defun (f x) ((return 1) + (return 2))) ((f 0) + (f 0)))
+  (prog (defun (f x) (+ (return 1) (return 2))) (+ (f 0) (f 0)))
   3)
 
 (define-test ex-gen-2
-  (prog (defun (f x) ((return 1) + (return 2))) (((f 0) + (f 0)) + (f 0)))
+  (prog (defun (f x) (+ (return 1) (return 2))) (+ (+ (f 0) (f 0)) (f 0)))
   3)
 
 (module+ test

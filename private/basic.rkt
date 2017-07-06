@@ -20,11 +20,11 @@
      ;; numbers
      n
      (zero? e)
-     (e + e)
+     (+ e e)
      ;; strings
      s
      (empty? e)
-     (e ++ e)
+     (++ e e)
      ;; functions & let
      (function x)
      (e e)
@@ -54,12 +54,12 @@
      (if E e e)
      ;; numbers
      (zero? E)
-     (E + e)
-     (v + E)
+     (+ E e)
+     (+ v E)
      ;; strings
      (empty? E)
-     (E ++ e)
-     (v ++ E)
+     (++ E e)
+     (++ v E)
      ;; functions & let
      (E e)
      (v E)
@@ -82,7 +82,7 @@
         (in-hole P false)
         (side-condition (not (equal? (term n) 0)))
         e-zero-no)
-   (--> (in-hole P (n_1 + n_2))
+   (--> (in-hole P (+ n_1 n_2))
         (in-hole P ,(+ (term n_1) (term n_2)))
         e-plus)
    ;; strings
@@ -93,7 +93,7 @@
         (in-hole P false)
         (side-condition (not (equal? (term s) "")))
         e-empty-no)
-   (--> (in-hole P (s_1 ++ s_2))
+   (--> (in-hole P (++ s_1 s_2))
         (in-hole P ,(string-append (term s_1) (term s_2)))
         e-append)
    ;; termination
@@ -138,20 +138,8 @@
   false)
 
 (define-test ex-str-3
-  (prog ("abc" ++ "def"))
+  (prog (++ "abc" "def"))
   "abcdef")
-
-(define-test ex-record-1
-  (prog {("x" ("a" ++ "b")) ("y" (empty? ""))})
-  {("x" "ab") ("y" true)})
-
-(define-test ex-record-2
-  (prog ({("x" true) ("y" false)} @ "x"))
-  true)
-
-(define-test ex-record-3
-  (prog ({("x" true) ("y" false)} @ "y"))
-  false)
 
 (define-test ex-num-1
   (prog (zero? 0))
@@ -162,38 +150,38 @@
   false)
 
 (define-test ex-num-3
-  (prog (1 + 2))
+  (prog (+ 1 2))
   3)
 
 (define-test ex-defun-1
-  (prog (defun (f x) (x + 1)) (f 2))
+  (prog (defun (f x) (+ x 1)) (f 2))
   3)
 
 (define-test ex-defun-2
-  (prog (defun (f x) (x + 1))
-        (defun (g x) (x + 2))
-        (defun (h x) (x + 3))
+  (prog (defun (f x) (+ x 1))
+        (defun (g x) (+ x 2))
+        (defun (h x) (+ x 3))
         (g 1))
   3)
 
 (define-test ex-defun-3
-  (prog (defun (even? x) (if (zero? x) true (odd? (x + -1))))
-        (defun (odd? x) (if (zero? x) false (even? (x + -1))))
+  (prog (defun (even? x) (if (zero? x) true (odd? (+ x -1))))
+        (defun (odd? x) (if (zero? x) false (even? (+ x -1))))
         (even? 3))
   false)
 
 (define-test ex-defun-4
-  (prog (defun (f x) (x + 1))
-        (1 + (f 1)))
+  (prog (defun (f x) (+ x 1))
+        (+ 1 (f 1)))
   3)
 
 (define-test ex-defun-5
-  (prog (defun (tri n) (if (zero? n) 0 (n + (tri (n + -1))))) (tri 5))
+  (prog (defun (tri n) (if (zero? n) 0 (+ n (tri (+ n -1))))) (tri 5))
   15)
 
 (define-test ex-defun-6
   (prog (defun (twice f) (f (f 1)))
-        (defun (inc x) (x + 1))
+        (defun (inc x) (+ x 1))
         (twice inc))
   3)
 
@@ -201,11 +189,11 @@
   (prog (let ((x 3)) x)) 3)
 
 (define-test ex-let-2
-  (prog (let ((x 1)) (let ((x (x + 1))) (x + 1))))
+  (prog (let ((x 1)) (let ((x (+ x 1))) (+ x 1))))
   3)
 
 (define-test ex-let-3
-  (prog (1 + (let ((x 1)) (x + 1))))
+  (prog (+ 1 (let ((x 1)) (+ x 1))))
   3)
 
 (define-syntax-rule (run-bool-tests lang) (run-tests lang ex-bool-1 ex-bool-2))

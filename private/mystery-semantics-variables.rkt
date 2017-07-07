@@ -6,7 +6,7 @@
 (require "mystery-variables.rkt")
 
 ;; ---------------------------------------------------------------------------------------------------
-;; Mystery semantics!
+;; **Mystery semantics**
 ;; How does this language differ from Variables1?
 ;; Find a program that will demonstrate the difference.
 

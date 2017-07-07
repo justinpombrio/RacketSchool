@@ -6,7 +6,7 @@
 (require "mystery-records.rkt")
 
 ;; ---------------------------------------------------------------------------------------------------
-;; Mystery semantics!
+;; **Mystery semantics**
 ;; How do these languages differ from Records1?
 ;; Find programs that will demonstrate the difference.
 

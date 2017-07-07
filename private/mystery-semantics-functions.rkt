@@ -6,7 +6,7 @@
 (require "mystery-functions.rkt")
 
 ;; ---------------------------------------------------------------------------------------------------
-;; Mystery semantics!
+;; **Mystery semantics**
 ;; This language allows you to write `return` inside function bodies:
 ;; how does it behave?
 
@@ -16,7 +16,7 @@
   (f ::= (%defun e (x x) e))
   (e ::= ....
      (%call x e)
-     (return e))) ; Users can write "return" inside function definitions
+     (return e)))
 
 (define-extended-language func-lang-4 func-syntax-4
   (P ::= (prog f ... E))

@@ -17,11 +17,11 @@
      ;; numbers
      n
      (zero? e)
-     (e + e)
+     (+ e e)
      ;; strings
      s
      (empty? e)
-     (e ++ e)
+     (++ e e)
      ;; functions & let
      (function x)
      (e e)
@@ -51,12 +51,12 @@
      (if E e e)
      ;; numbers
      (zero? E)
-     (E + e)
-     (v + E)
+     (+ E e)
+     (+ v E)
      ;; strings
      (empty? E)
-     (E ++ e)
-     (v ++ E)
+     (++ E e)
+     (++ v E)
      ;; functions & let
      (E e)
      (v E)
@@ -79,7 +79,7 @@
         (in-hole P false)
         (side-condition (not (equal? (term n) 0)))
         e-zero-no)
-   (--> (in-hole P (n_1 + n_2))
+   (--> (in-hole P (+ n_1 n_2))
         (in-hole P ,(+ (term n_1) (term n_2)))
         e-plus)
    ;; strings
@@ -90,7 +90,7 @@
         (in-hole P false)
         (side-condition (not (equal? (term s) "")))
         e-empty-no)
-   (--> (in-hole P (s_1 ++ s_2))
+   (--> (in-hole P (++ s_1 s_2))
         (in-hole P ,(string-append (term s_1) (term s_2)))
         e-append)
    ;; termination

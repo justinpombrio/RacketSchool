@@ -1,7 +1,7 @@
 #lang racket
 
 (provide record->1 record->2 record->3)
-(provide record-lang-1 record-lang-2 record-lang-3)
+(provide record-syntax record-lang-1 record-lang-2 record-lang-3)
 
 ;; ---------------------------------------------------------------------------------------------------
 (require redex)

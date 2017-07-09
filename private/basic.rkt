@@ -115,6 +115,10 @@
               (in-hole E ((function x_fun) v_arg)))
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E (substitute e_body x_param v_arg)))
+        ; Functions must all have distinct names.
+        ; (caadr selects a functions' name)
+        (side-condition (not (member (term x_fun)
+                                     (map caadr (term (f_1 ... f_2 ...))))))
         e-apply)))
 
 
@@ -185,6 +189,14 @@
         (twice inc))
   3)
 
+(define-test ex-defun-7
+  (prog (defun (f x) (+ x 1))
+        (defun (f x) (+ x 2))
+        (f 1))
+  (prog (defun (f x) (+ x 1))
+        (defun (f x) (+ x 2))
+        ((function f) 1)))
+
 (define-test ex-let-1
   (prog (let ((x 3)) x)) 3)
 
@@ -199,7 +211,8 @@
 (define-syntax-rule (run-bool-tests lang) (run-tests lang ex-bool-1 ex-bool-2))
 (define-syntax-rule (run-str-tests lang)  (run-tests lang ex-str-1 ex-str-2 ex-str-3))
 (define-syntax-rule (run-num-tests lang)  (run-tests lang ex-num-1 ex-num-2 ex-num-3))
-(define-syntax-rule (run-func-tests lang) (run-tests lang ex-defun-1 ex-defun-2 ex-defun-3 ex-defun-4 ex-defun-5 ex-defun-6))
+(define-syntax-rule (run-func-tests lang) (run-tests lang ex-defun-1 ex-defun-2 ex-defun-3 ex-defun-4 ex-defun-5 ex-defun-6
+                                                     ex-defun-7))
 (define-syntax-rule (run-let-tests lang)  (run-tests lang ex-let-1 ex-let-2 ex-let-3))
 
 (define-syntax-rule

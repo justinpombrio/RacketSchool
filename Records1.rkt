@@ -1,5 +1,7 @@
 #lang racket/base
 
+;; This one is written out the long way.
+
 (provide
  (rename-out
   [top-interaction #%top-interaction]
@@ -8,8 +10,8 @@
 ;; ---------------------------------------------------------------------------------------------------
 ;; dependencies
 
-(require "../private/mystery.rkt"
-         "../private/mystery-records.rkt"
+(require "private/mystery.rkt"
+         "private/mystery-records.rkt"
          (for-syntax racket/base
                      syntax/parse)
          redex/reduction-semantics)
@@ -34,7 +36,7 @@
 ;; reader
 
 (module reader syntax/module-reader
-  Records1
+  RacketSchool/Records1
   
   #:read read
   #:read-syntax read-syntax

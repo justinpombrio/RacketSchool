@@ -22,7 +22,7 @@
      ;; ---------------------------------------------------------------------------------------------------
      ;; dependencies
 
-     (require "../private/mystery.rkt"
+     (require RacketSchool/private/mystery
               (for-syntax racket/base
                           syntax/parse)
               redex/reduction-semantics)

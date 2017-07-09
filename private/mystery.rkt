@@ -27,7 +27,10 @@
 (define-syntax-rule (run lang e)
   (let ((x (apply-reduction-relation* lang (term e))))
     (cond
-      [(empty? x) (error 'run "can't happen: ~e produced '()" (term e))]
+      [(empty? x)
+       ; Infinite loop detected!
+       ; The programmer asked for an infinite loop, so let's give them one.
+       (let loop () (loop))]
       [(empty? (rest x)) (set! x (car x))]
       [else (displayln `(warning: ambiguous outcome))
             (for ([i x]) (displayln `(--> ,i)))

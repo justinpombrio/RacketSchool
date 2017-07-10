@@ -1,7 +1,7 @@
 #lang racket
 
 (provide var->1 var->2 var->3)
-(provide var-lang)
+(provide var-syntax var-lang)
 
 ;; ---------------------------------------------------------------------------------------------------
 (require redex)

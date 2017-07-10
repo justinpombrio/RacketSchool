@@ -1,12 +1,15 @@
 #lang racket
 
 (provide func->1 func->2 func->3)
-(provide func-lang-1 func-lang-2 func-lang-3)
+(provide func-syntax func-lang-1 func-lang-2 func-lang-3)
 
 ;; ---------------------------------------------------------------------------------------------------
 (require redex)
 (require "basic.rkt")
 (require "testing.rkt")
+
+;; syntax is unchanged
+(define-extended-language func-syntax basic-lang)
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; language 1: Regular function calls
@@ -37,7 +40,6 @@
 
 ; These syntax extensions are meant to be internal, and thus start with '%'.
 (define-extended-language func-syntax-3 basic-lang
-  (p ::= (prog f ... uf ... e))
   (uf ::= (defun (x x) e)) ; uninitialized functions
   (f ::= (%defun e (x x) e)) ; initialized functions
   (e ::= ....

@@ -11,7 +11,7 @@
 ;; syntax
 
 (define-language basic-syntax
-  (p ::= (prog f ... e))
+  (p ::= (prog (defun (x_!_ x) e_body) ... e))
   (f ::= (defun (x x) e))
   (e ::=
      ;; booleans

@@ -32,7 +32,7 @@
     (define-syntax (top-interaction stx)
       (syntax-case stx ()
         [(_ . e)
-         #`(#%top-interaction . (run-all reductions ... (prog ,@definitions e)))]))
+         #`(#%top-interaction . (run-all grammar-id reductions ... (prog ,@definitions e)))]))
 
     (define-syntax (module-begin stx)
       (syntax-parse stx
@@ -40,7 +40,7 @@
          #`(#%module-begin
             (define defns
               (filter (redex-match? grammar-id defn-pattern) (term (e (... ...)))))
-            (run-all reductions ...  (prog e (... ...))))]))
+            (run-all grammar-id reductions ...  (prog e (... ...))))]))
 
     ;; ---------------------------------------------------------------------------------------------------
     ;; reader

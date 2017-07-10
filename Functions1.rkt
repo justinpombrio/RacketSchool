@@ -4,6 +4,6 @@
 
 (define-language
   #:module-name RacketSchool/Functions1
-  #:reductions func->1
+  #:reductions (func->1)
   #:grammar func-lang-1
   #:defn-pattern  (defun (x_1 x_2) e_1))

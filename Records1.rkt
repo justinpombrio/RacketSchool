@@ -22,7 +22,7 @@
 (define-syntax (top-interaction stx)
   (syntax-case stx ()
     [(_ . e)
-     #`(#%top-interaction . (run records1 (prog ,@definitions e)))]))
+     #`(#%top-interaction . (run-all record->1 (prog ,@definitions e)))]))
 
 (define-syntax (module-begin stx)
   (syntax-parse stx
@@ -30,7 +30,7 @@
      #`(#%module-begin
         (define defns
           (filter (redex-match? record-lang-1 (defun (x_1 x_2) e_1)) (term (e ...))))
-        (run record->1 (prog e ...)))]))
+        (run-all record->1 (prog e ...)))]))
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; reader

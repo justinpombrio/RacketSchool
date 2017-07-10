@@ -23,11 +23,8 @@
         'stuck
         x)))
 
-(define-syntax-rule (run-all lang1 lang2 lang3 e)
-  (let ((answer1 (run lang1 e))
-        (answer2 (run lang2 e))
-        (answer3 (run lang3 e)))
-    (values answer1 answer2 answer3)))
+(define-syntax-rule (run-all lang ... e)
+  (values (run lang e) ...))
 
 (define (stuck? e)
   (eq? e 'stuck))

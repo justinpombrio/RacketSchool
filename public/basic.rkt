@@ -38,6 +38,8 @@
      (function x))
   #:binding-forms
   (let ((x e_1)) e_2 #:refers-to x))
+
+(default-language basic-syntax)
   
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -113,20 +115,3 @@
         (prog f_1 ... (defun (x_fun x_param) e_body) f_2 ...
               (in-hole E (substitute e_body x_param v_arg)))
         e-apply)))
-
-(define-extended-language record-syntax basic-lang
-  (e ::= ....
-     (record (s e) ...)
-     (@ e e))
-  (v ::= ....
-     (record (s v) ...)))
-
-(define-extended-language record-lang-1 record-syntax
-  (E ::= ....
-     ??))
-
-(define record->1
-  (extend-reduction-relation basic-> record-lang-1
-   (--> ??
-        ??
-        e-at)))

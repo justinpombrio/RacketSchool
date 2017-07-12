@@ -11,6 +11,8 @@
 ;; syntax is unchanged
 (define-extended-language func-syntax basic-lang)
 
+(default-language func-syntax)
+
 ;; ---------------------------------------------------------------------------------------------------
 ;; language 1: Regular function calls
 

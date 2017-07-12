@@ -13,11 +13,15 @@
 ;; syntax: shared
 
 (define-extended-language var-syntax basic-lang
-  (f ::= ....
-     (defvar x v))
+  (p ::= (prog f ... e))
+  (f ::=
+     (defun (x x) e)
+     (defvar x e))
   (e ::= ....
      (set! x e)
      (begin e ...)))
+
+(default-language var-syntax)
 
 
 ;; ---------------------------------------------------------------------------------------------------

@@ -19,6 +19,8 @@
   (v ::= ....
      (record (s v) ...)))
 
+(default-language record-syntax)
+
 
 ;; ---------------------------------------------------------------------------------------------------
 ;; lanuage 1: Field lookup must be on string literals

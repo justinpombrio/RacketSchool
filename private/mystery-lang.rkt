@@ -43,6 +43,8 @@
               (filter (redex-match? grammar-id defn-pattern) (term (e (... ...)))))
             (run-all grammar-id reductions ...  (prog e (... ...))))]))
 
+
+    
     ;; ---------------------------------------------------------------------------------------------------
     ;; reader
 
@@ -55,26 +57,8 @@
       #:info (λ (key default default-filter)
       (case key
         [(drracket:toolbar-buttons)
-         (list
-          (list
-           "Redex Stepper"
-           (make-object bitmap% 16 16) ; a 16 x 16 white square
-           (λ (drr-window)
-             (stepper
-              (dynamic-require 'lang-module-name 'reduction)
-              (let ([mod
-                     (with-module-reading-parameterization
-                         (λ ()
-                           (read
-                            (open-input-string
-                             (send (send drr-window get-definitions-text)
-                                   get-text)))))])
-                (match mod
-                  [`(module ,_ ,_
-                     (#%module-begin
-                      definitions
-                      ,defs (... ...))) (term (prog ,@defs))])
-                )))))]
+          ((dynamic-require ''RacketSchool/private/stepper ''info)
+           (dynamic-require 'lang-module-name 'reduction))]
         [else default]))
       
-      (require racket redex syntax/modread racket/draw))))
+      (require racket))))

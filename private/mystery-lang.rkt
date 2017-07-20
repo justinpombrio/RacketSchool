@@ -57,7 +57,7 @@
       #:info (λ (key default default-filter)
       (case key
         [(drracket:toolbar-buttons)
-          ((dynamic-require ''RacketSchool/private/stepper ''info)
+          ((dynamic-require ''RacketSchool/private/stepper 'info)
            (dynamic-require 'lang-module-name 'reduction))]
         [else default]))
       

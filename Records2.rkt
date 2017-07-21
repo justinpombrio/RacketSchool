@@ -4,6 +4,6 @@
 
 (define-language
   #:module-name RacketSchool/Records2
-  #:reductions (record->2)
+  #:reductions record->2
   #:grammar record-lang-2
   #:defn-pattern  (defun (x_1 x_2) e_1))

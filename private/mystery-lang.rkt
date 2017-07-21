@@ -8,7 +8,7 @@
 
 (define-syntax-rule (define-language
                       #:module-name lang-module-name
-                      #:reductions (reduction reductions ...)
+                      #:reductions reduction reductions ...
                       #:grammar grammar-id
                       #:defn-pattern defn-pattern)
   (begin

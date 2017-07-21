@@ -4,6 +4,6 @@
 
 (define-language
   #:module-name RacketSchool/Variables2
-  #:reductions (var->2)
+  #:reductions var->2
   #:grammar var-lang
   #:defn-pattern  (defun (x_1 x_2) e_1))

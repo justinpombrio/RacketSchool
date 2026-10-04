@@ -9,3 +9,8 @@
   "Mystery Languages for the Racket Summer School of Semantics and Languages")
 
 (define pkg-authors '(justin matthias shriram))
+(define deps '("base"
+               "draw-lib"
+               "htdp-lib"
+               "redex-gui-lib"
+               "redex-lib"))
